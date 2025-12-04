@@ -9,7 +9,8 @@ import torch.nn.functional as F
 from mymodel import UNet
 from dataload import load_data
 import argparse
-
+import os
+import json
 
 # 训练函数
 def train_epoch(model, loader, criterion, optimizer, device):
@@ -58,6 +59,8 @@ def test_epoch(model, loader, device):
     return avg_psnr, avg_ssim
 
 def main(args):
+    os.makedirs('./result/best', exist_ok=True)
+    os.makedirs('./result/checkpoints', exist_ok=True)
     # 设备配置
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model = UNet().to(device)
@@ -97,6 +100,15 @@ def main(args):
         print(f'Best PSNR: {best_psnr:.2f}')
 
         loss.append(train_loss)
+        PSNR.append(test_psnr)
+        SSIM.append(test_ssim)
+    params = {
+        'loss': loss,
+        'PSNR': PSNR,
+        'SSIM': SSIM
+    }
+    with open('./result/train_stats.json', 'w') as f:
+        json.dump(params, f)
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Train UNet on LOL Dataset')
