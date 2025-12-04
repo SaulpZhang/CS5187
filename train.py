@@ -76,12 +76,28 @@ def test_epoch(model, loader,criterion, device):
     avg_loss = total_loss / len(loader)
     return avg_loss, avg_psnr, avg_ssim
 
+def get_model(args):
+    if args.model == 'unet':
+        return UNet()
+    elif args.model == 'unet_cbam':
+        pass
+    else:
+        return UNet()
+
+def get_device():
+    if torch.cuda.is_available():
+        return torch.device('cuda')
+    elif torch.backends.mps.is_available():
+        return torch.device('mps')
+    else:
+        return torch.device('cpu')
+
 def main(args):
     os.makedirs('./result/best', exist_ok=True)
     os.makedirs('./result/checkpoints', exist_ok=True)
     # 设备配置
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    model = UNet().to(device)
+    device = get_device()
+    model = get_model(args).to(device)
 
     train_loader, test_loader = load_data()
 
@@ -107,13 +123,13 @@ def main(args):
         train_loss, train_psnr, train_ssim = train_epoch(model, train_loader, criterion, optimizer, device)
         test_loss, test_psnr, test_ssim = test_epoch(model, test_loader, criterion, device)
         
-        train_losses.append(train_loss)
-        train_PSNRs.append(train_psnr)
-        train_SSIMs.append(train_ssim)
+        train_losses.append(float(train_loss))
+        train_PSNRs.append(float(train_psnr))
+        train_SSIMs.append(float(train_ssim))
 
-        test_losses.append(test_loss)
-        test_PSNRs.append(test_psnr)
-        test_SSIMs.append(test_ssim)
+        test_losses.append(float(test_loss))
+        test_PSNRs.append(float(test_psnr))
+        test_SSIMs.append(float(test_ssim))
 
         # 学习率衰减
         scheduler.step()
@@ -142,6 +158,7 @@ def main(args):
 def parse_args():
     parser = argparse.ArgumentParser(description='Train UNet on LOL Dataset')
     parser.add_argument('--epochs', type=int, default=100, help='number of training epochs')
+    parser.add_argument('--model', type=str, default='unet', help='model architecture to use')
     parser.add_argument('--save_step', type=int, default=10, help='save model every n epochs')
     return parser.parse_args()
 
