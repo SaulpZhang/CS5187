@@ -8,6 +8,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from mymodel import UNet
 from unet_cbam import UNetCBAM
+from ubet_retinx import RetinexUNet
 from dataload import load_data
 import argparse
 import os
@@ -82,6 +83,8 @@ def get_model(args):
         return UNet()
     elif args.model == 'unet_cbam':
         return UNetCBAM()
+    elif args.model == 'unet_retinx':
+        return RetinexUNet()
     else:
         return UNet()
 
