@@ -9,7 +9,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 # 加载最优模型
 model = UNet().to(device)
-model.load_state_dict(torch.load('unet_lol_best.pth', map_location=torch.device(device)))
+model.load_state_dict(torch.load('./result/unet/result/best/unet_lol_best.pth', map_location=torch.device(device)))
 model.eval()
 transform = get_transform()
 # 单张图像推理
