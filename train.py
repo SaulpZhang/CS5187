@@ -67,7 +67,7 @@ def test_epoch(model, loader, device):
     return avg_psnr, avg_ssim
 
 # 开始训练
-num_epochs = 30
+num_epochs = 100
 best_psnr = 0.0
 
 for epoch in range(num_epochs):
