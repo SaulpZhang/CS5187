@@ -179,7 +179,7 @@ def main(args):
                 json.dump(params, f)
         
         print(f'Train Loss: {train_loss:.4f}, Test Loss: {test_loss:.4f}, Test PSNR: {test_psnr:.2f}, Test SSIM: {test_ssim:.4f}')
-        print(f'Best PSNR: {best_psnr:.2f}')
+        print(f'Best PSNR: {best_psnr:.2f}, epoch: {epoch+1}')
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Train UNet on LOL Dataset')

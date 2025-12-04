@@ -17,12 +17,12 @@ class DoubleConv(nn.Module):
             nn.BatchNorm2d(out_channels),
             nn.ReLU(inplace=True)
         )
-        self.cbam = CBAM(out_channels)
+        # self.cbam = CBAM(out_channels)
         self.coord_att = CoordAttention(out_channels)
 
     def forward(self, x):
         x = self.double_conv(x)
-        x = self.cbam(x)
+        # x = self.cbam(x)
         x = self.coord_att(x)
         return x
 
