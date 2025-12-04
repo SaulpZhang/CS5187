@@ -7,6 +7,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from mymodel import UNet
+from unet_cbam import UNetCBAM
 from dataload import load_data
 import argparse
 import os
@@ -80,7 +81,7 @@ def get_model(args):
     if args.model == 'unet':
         return UNet()
     elif args.model == 'unet_cbam':
-        pass
+        return UNetCBAM()
     else:
         return UNet()
 
@@ -98,6 +99,8 @@ def main(args):
     # 设备配置
     device = get_device()
     model = get_model(args).to(device)
+    if args.c != 0:
+        model.load_state_dict(torch.load(f'./result/checkpoints/unet_lol_epoch_{args.c}.pth', map_location=torch.device(device)))
 
     train_loader, test_loader = load_data()
 
@@ -118,6 +121,19 @@ def main(args):
     test_losses = []
     test_PSNRs = []
     test_SSIMs = []
+
+    if args.c != 0:
+        with open('./result/train_stats.json', 'r') as f:
+            stats = json.load(f)
+            train_losses = stats['train_losses'][:args.c]
+            train_PSNRs = stats['train_PSNRs'][:args.c]
+            train_SSIMs = stats['train_SSIMs'][:args.c]
+            test_losses = stats['test_losses'][:args.c]
+            test_PSNRs = stats['test_PSNRs'][:args.c]
+            test_SSIMs = stats['test_SSIMs'][:args.c]
+            best_psnr = max(test_PSNRs)
+
+
     for epoch in range(num_epochs):
         print(f'Epoch [{epoch+1}/{num_epochs}]')
         train_loss, train_psnr, train_ssim = train_epoch(model, train_loader, criterion, optimizer, device)
@@ -160,12 +176,13 @@ def parse_args():
     parser.add_argument('--epochs', type=int, default=100, help='number of training epochs')
     parser.add_argument('--model', type=str, default='unet', help='model architecture to use')
     parser.add_argument('--save_step', type=int, default=10, help='save model every n epochs')
+    parser.add_argument('--c', type=int, default=0, help='continue training from checkpoint')
     return parser.parse_args()
 
 if __name__ == "__main__":
     random.seed(42)
     torch.manual_seed(42)
     torch.cuda.manual_seed_all(42)
-    
+
     args = parse_args()
     main(args)
