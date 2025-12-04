@@ -125,7 +125,7 @@ def main(args):
         if (epoch + 1) % args.save_step == 0:
             torch.save(model.state_dict(), f'./result/checkpoints/unet_lol_epoch_{epoch+1}.pth')
         
-        print(f'Train Loss: {train_loss:.4f}, Test PSNR: {test_psnr:.2f}, Test SSIM: {test_ssim:.4f}')
+        print(f'Train Loss: {train_loss:.4f}, Test Loss: {test_loss:.4f}, Test PSNR: {test_psnr:.2f}, Test SSIM: {test_ssim:.4f}')
         print(f'Best PSNR: {best_psnr:.2f}')
     params = {
         'train_losses': train_losses,
