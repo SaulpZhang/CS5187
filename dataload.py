@@ -32,16 +32,19 @@ class LOLDataset(Dataset):
         
         return low_img, high_img
 
-
-
-# 加载数据集
-def load_data(rootDir = './lol_dataset'):
-    # 数据变换
+def get_transform():
     transform = transforms.Compose([
         transforms.ToPILImage(),
         transforms.Resize((256, 256)),  # 统一尺寸
         transforms.ToTensor(),  # 转为Tensor并归一化到[0,1]
     ])
+
+    return transform
+
+# 加载数据集
+def load_data(rootDir = './lol_dataset'):
+    # 数据变换
+    transform = get_transform()
 
     train_dataset = LOLDataset(root_dir=rootDir, phase='our485', transform=transform)
     test_dataset = LOLDataset(root_dir=rootDir, phase='eval15', transform=transform)
