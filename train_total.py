@@ -121,7 +121,7 @@ def main(args):
 
     # 损失函数和优化器
     criterion = nn.MSELoss()  # 均方误差损失（适合像素级回归）
-    optimizer = optim.Adam(model.parameters(), lr=1e-4)
+    optimizer = optim.Adam(model.parameters(), lr=1e-5)
     scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.5)  # 学习率衰减
 
 
