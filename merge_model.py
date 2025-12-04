@@ -18,17 +18,10 @@ class DoubleConv(nn.Module):
             nn.ReLU(inplace=True)
         )
         self.cbam = CBAM(out_channels)
-        self.coord_att = CoordAttention(out_channels)
-
-        # 注意力权重融合（可学习）
-        self.alpha = nn.Parameter(torch.ones(1))  # CBAM权重
-        self.beta = nn.Parameter(torch.ones(1))   # CoordAttention权重
 
     def forward(self, x):
         x = self.double_conv(x)
-        x_cbam = self.cbam(x)
-        x_coord = self.coord_att(x)
-        x = (self.alpha * x_cbam + self.beta * x_coord) / (self.alpha + self.beta)
+        x = self.cbam(x)
         return x
 
 class Down(nn.Module):
