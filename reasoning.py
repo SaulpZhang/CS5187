@@ -3,7 +3,7 @@ import torch
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
-from torchvision import transforms
+from dataload import get_transform
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -11,7 +11,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model = UNet().to(device)
 model.load_state_dict(torch.load('unet_lol_best.pth'))
 model.eval()
-
+transform = get_transform()
 # 单张图像推理
 def infer_image(model, img_path, transform, device):
     # 读取图像
