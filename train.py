@@ -124,6 +124,7 @@ def main(args):
     # 开始训练
     num_epochs = args.epochs
     best_psnr = 0.0
+    best_epoch = 0
     train_losses = []
     train_PSNRs = []
     train_SSIMs = []
@@ -163,6 +164,7 @@ def main(args):
         # 保存最优模型
         if test_psnr > best_psnr:
             best_psnr = test_psnr
+            best_epoch = epoch + 1
             torch.save(model.state_dict(), './result/best/unet_lol_best.pth')
         
         if (epoch + 1) % args.save_step == 0:
@@ -179,7 +181,7 @@ def main(args):
                 json.dump(params, f)
         
         print(f'Train Loss: {train_loss:.4f}, Test Loss: {test_loss:.4f}, Test PSNR: {test_psnr:.2f}, Test SSIM: {test_ssim:.4f}')
-        print(f'Best PSNR: {best_psnr:.2f}, epoch: {epoch+1}')
+        print(f'Best PSNR: {best_psnr:.2f}, epoch: {best_epoch}')
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Train UNet on LOL Dataset')
