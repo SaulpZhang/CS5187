@@ -102,6 +102,7 @@ def main(args):
     if args.c != 0:
         model.load_state_dict(torch.load(f'./result/checkpoints/unet_lol_epoch_{args.c}.pth', map_location=torch.device(device)))
 
+    print(f"device: {device}, model: {model.__class__.__name__}")
     train_loader, test_loader = load_data()
 
     # 损失函数和优化器
