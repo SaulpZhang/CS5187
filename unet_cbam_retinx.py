@@ -1,36 +1,8 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-
-class RetinexBranch(nn.Module):
-    """Retinex分解分支：输出亮度层和反射层"""
-    def __init__(self, in_channels=3):
-        super().__init__()
-        # 亮度层提取（输出1通道，代表全局亮度）
-        self.illumination = nn.Sequential(
-            nn.Conv2d(in_channels, 64, 3, padding=1),
-            nn.ReLU(inplace=True),
-            nn.Conv2d(64, 32, 3, padding=1),
-            nn.ReLU(inplace=True),
-            nn.Conv2d(32, 1, 3, padding=1),
-            nn.Sigmoid()  # 亮度层归一化到[0,1]
-        )
-        # 反射层提取（输出3通道，保留细节）
-        self.reflectance = nn.Sequential(
-            nn.Conv2d(in_channels, 64, 3, padding=1),
-            nn.ReLU(inplace=True),
-            nn.Conv2d(64, 32, 3, padding=1),
-            nn.ReLU(inplace=True),
-            nn.Conv2d(32, 3, 3, padding=1),
-            nn.Sigmoid()  # 反射层归一化到[0,1]
-        )
-
-    def forward(self, x):
-        illu = self.illumination(x)    # 亮度层 (B,1,H,W)
-        refl = self.reflectance(x)     # 反射层 (B,3,H,W)
-        # Retinex重构：图像=反射层×亮度层（模拟物理规律）
-        recon = refl * illu.repeat(1,3,1,1)  # 亮度层扩展到3通道
-        return illu, refl, recon
+from unet_cbam import CBAM
+from ubet_retinx import RetinexBranch
 
 class DoubleConv(nn.Module):
     """双卷积块（Conv+BN+ReLU）"""
@@ -44,9 +16,12 @@ class DoubleConv(nn.Module):
             nn.BatchNorm2d(out_channels),
             nn.ReLU(inplace=True)
         )
+        self.cbam = CBAM(out_channels)
 
     def forward(self, x):
-        return self.double_conv(x)
+        x = self.double_conv(x)
+        x = self.cbam(x)
+        return x
 
 class Down(nn.Module):
     """下采样块（MaxPool+DoubleConv）"""
@@ -85,10 +60,10 @@ class OutConv(nn.Module):
     def forward(self, x):
         return self.conv(x)
 
-class RetinexUNet(nn.Module):
+class UNetRetinexCBAM(nn.Module):
     """融合Retinex分支的UNet"""
     def __init__(self, n_channels=3, n_classes=3):
-        super(RetinexUNet, self).__init__()
+        super(UNetRetinexCBAM, self).__init__()
         self.n_channels = n_channels
         self.n_classes = n_classes
 
