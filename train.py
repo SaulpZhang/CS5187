@@ -10,6 +10,7 @@ from mymodel import UNet
 from unet_cbam import UNetCBAM
 from ubet_retinx import RetinexUNet
 from unet_cbam_retinx import UNetRetinexCBAM
+from merge_model import UNetMerge
 from dataload import load_data
 import argparse
 import os
@@ -88,6 +89,8 @@ def get_model(args):
         return RetinexUNet()
     elif args.model == 'unet_cbam_retinx':
         return UNetRetinexCBAM()
+    elif args.model == 'unet_merge':
+        return UNetMerge()
     else:
         return UNet()
 
