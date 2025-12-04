@@ -8,17 +8,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 from mymodel import UNet
 from dataload import load_data
+import argparse
 
-# 设备配置
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-model = UNet().to(device)
-
-train_loader, test_loader = load_data()
-
-# 损失函数和优化器
-criterion = nn.MSELoss()  # 均方误差损失（适合像素级回归）
-optimizer = optim.Adam(model.parameters(), lr=1e-4)
-scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.5)  # 学习率衰减
 
 # 训练函数
 def train_epoch(model, loader, criterion, optimizer, device):
@@ -66,22 +57,53 @@ def test_epoch(model, loader, device):
     avg_ssim = total_ssim / len(loader)
     return avg_psnr, avg_ssim
 
-# 开始训练
-num_epochs = 100
-best_psnr = 0.0
+def main(args):
+    # 设备配置
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    model = UNet().to(device)
 
-for epoch in range(num_epochs):
-    print(f'Epoch [{epoch+1}/{num_epochs}]')
-    train_loss = train_epoch(model, train_loader, criterion, optimizer, device)
-    test_psnr, test_ssim = test_epoch(model, test_loader, device)
-    
-    # 学习率衰减
-    scheduler.step()
-    
-    # 保存最优模型
-    if test_psnr > best_psnr:
-        best_psnr = test_psnr
-        torch.save(model.state_dict(), 'unet_lol_best.pth')
-    
-    print(f'Train Loss: {train_loss:.4f}, Test PSNR: {test_psnr:.2f}, Test SSIM: {test_ssim:.4f}')
-    print(f'Best PSNR: {best_psnr:.2f}')
+    train_loader, test_loader = load_data()
+
+    # 损失函数和优化器
+    criterion = nn.MSELoss()  # 均方误差损失（适合像素级回归）
+    optimizer = optim.Adam(model.parameters(), lr=1e-4)
+    scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.5)  # 学习率衰减
+
+
+
+    # 开始训练
+    num_epochs = args.epochs
+    best_psnr = 0.0
+    loss = []
+    PSNR = []
+    SSIM = []
+    for epoch in range(num_epochs):
+        print(f'Epoch [{epoch+1}/{num_epochs}]')
+        train_loss = train_epoch(model, train_loader, criterion, optimizer, device)
+        test_psnr, test_ssim = test_epoch(model, test_loader, device)
+        
+        # 学习率衰减
+        scheduler.step()
+        
+        # 保存最优模型
+        if test_psnr > best_psnr:
+            best_psnr = test_psnr
+            torch.save(model.state_dict(), './result/best/unet_lol_best.pth')
+        
+        if (epoch + 1) % args.save_step == 0:
+            torch.save(model.state_dict(), f'./result/checkpoints/unet_lol_epoch_{epoch+1}.pth')
+        
+        print(f'Train Loss: {train_loss:.4f}, Test PSNR: {test_psnr:.2f}, Test SSIM: {test_ssim:.4f}')
+        print(f'Best PSNR: {best_psnr:.2f}')
+
+        loss.append(train_loss)
+
+def parse_args():
+    parser = argparse.ArgumentParser(description='Train UNet on LOL Dataset')
+    parser.add_argument('--epochs', type=int, default=100, help='number of training epochs')
+    parser.add_argument('--save_step', type=int, default=10, help='save model every n epochs')
+    return parser.parse_args()
+
+if __name__ == "__main__":
+    args = parse_args()
+    main(args)
