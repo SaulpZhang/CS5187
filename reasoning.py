@@ -33,7 +33,7 @@ def infer_image(model, img_path, transform, device):
 
 # 测试推理
 if __name__ == "__main__":
-    test_img_path = './LOL/test/low/1.png'
+    test_img_path = './lol_dataset/eval15/low/1.png'
     low_img, enhanced_img = infer_image(model, test_img_path, transform, device)
     
     # 可视化
@@ -42,7 +42,7 @@ if __name__ == "__main__":
     plt.subplot(132), plt.imshow(enhanced_img), plt.title('UNet Enhanced')
     
     # 显示参考图像
-    ref_img = cv2.imread('./LOL/test/high/1.png')
+    ref_img = cv2.imread('./lol_dataset/eval15/high/1.png')
     ref_img = cv2.cvtColor(ref_img, cv2.COLOR_BGR2RGB)
     plt.subplot(133), plt.imshow(ref_img), plt.title('Reference')
     plt.show()
