@@ -11,6 +11,7 @@ from dataload import load_data
 import argparse
 import os
 import json
+import random
 
 # 训练函数
 def train_epoch(model, loader, criterion, optimizer, device):
@@ -145,5 +146,9 @@ def parse_args():
     return parser.parse_args()
 
 if __name__ == "__main__":
+    random.seed(42)
+    torch.manual_seed(42)
+    torch.cuda.manual_seed_all(42)
+    
     args = parse_args()
     main(args)
