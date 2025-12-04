@@ -33,13 +33,13 @@ def train_epoch(model, loader, criterion, optimizer, device):
         
         total_loss += loss.item()
 
-        # 转为numpy（0-1 → 0-255）
-        outputs_np = outputs.cpu().squeeze().permute(1,2,0).numpy() * 255
-        high_np = high_imgs.cpu().squeeze().permute(1,2,0).numpy() * 255
-        
-        # 计算指标
-        total_psnr += psnr(high_np, outputs_np, data_range=255)
-        total_ssim += ssim(high_np, outputs_np, channel_axis=2, data_range=255)
+        # # 转为numpy（0-1 → 0-255）
+        # for i in range(outputs.size(0)):
+        #     outputs_np = outputs[i].cpu().permute(1,2,0).numpy() * 255
+        #     high_np = high_imgs[i].cpu().permute(1,2,0).numpy() * 255
+        #     # 计算指标
+        #     total_psnr += psnr(high_np, outputs_np, data_range=255)
+        #     total_ssim += ssim(high_np, outputs_np, channel_axis=2, data_range=255)
     
     avg_psnr = total_psnr / len(loader)
     avg_ssim = total_ssim / len(loader)
