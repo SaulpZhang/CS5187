@@ -72,7 +72,8 @@ def test_epoch(model, loader,criterion, device):
     
     avg_psnr = total_psnr / len(loader)
     avg_ssim = total_ssim / len(loader)
-    return avg_psnr, avg_ssim
+    avg_loss = total_loss / len(loader)
+    return avg_loss, avg_psnr, avg_ssim
 
 def main(args):
     os.makedirs('./result/best', exist_ok=True)
