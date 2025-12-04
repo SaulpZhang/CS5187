@@ -158,19 +158,19 @@ def main(args):
         
         if (epoch + 1) % args.save_step == 0:
             torch.save(model.state_dict(), f'./result/checkpoints/unet_lol_epoch_{epoch+1}.pth')
+            with open(f'./result/checkpoints/train_stats_epoch_{epoch+1}.json', 'w') as f:
+                params = {
+                    'train_losses': train_losses,
+                    'train_PSNRs': train_PSNRs,
+                    'train_SSIMs': train_SSIMs,
+                    'test_losses': test_losses,
+                    'test_PSNRs': test_PSNRs,
+                    'test_SSIMs': test_SSIMs
+                }
+                json.dump(params, f)
         
         print(f'Train Loss: {train_loss:.4f}, Test Loss: {test_loss:.4f}, Test PSNR: {test_psnr:.2f}, Test SSIM: {test_ssim:.4f}')
         print(f'Best PSNR: {best_psnr:.2f}')
-    params = {
-        'train_losses': train_losses,
-        'train_PSNRs': train_PSNRs,
-        'train_SSIMs': train_SSIMs,
-        'test_losses': test_losses,
-        'test_PSNRs': test_PSNRs,
-        'test_SSIMs': test_SSIMs
-    }
-    with open('./result/train_stats.json', 'w') as f:
-        json.dump(params, f)
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Train UNet on LOL Dataset')
